@@ -25,3 +25,6 @@ jobs:
 
     - name: Run check format code
       run: cargo fmt -- --check
+    
+    # - name: Security measurements
+      # run: cargo audit
