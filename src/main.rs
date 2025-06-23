@@ -1,25 +1,22 @@
 // src/main.rs
 
-use actix_web::{
-    web,
-    App,
-    HttpRequest,
-    HttpServer,
-    Responder
-};
+use actix_web::{App, HttpResponse, HttpServer, Responder, web};
 
 // Handler function for incoming HTTP GET requests.
 // It takes an HttpRequest as input and returns something that implements the Responder trait.
 // This allows Actix Web to convert the return value into an HTTP response.
-async fn greet(req: HttpRequest) -> impl Responder {
-    // Attempt to extract the "name" parameter from the request's path.
-    // If the parameter is not present (e.g., the path is just "/"), default to "world".
-    let name = req.match_info().get("name").unwrap_or("world");
-    // Format a greeting message using the extracted or default name.
-    // The resulting String will be sent as the HTTP response body.
-    format!("Hello {}", &name)
-}
+// async fn greet(req: HttpRequest) -> impl Responder {
+//     // Attempt to extract the "name" parameter from the request's path.
+//     // If the parameter is not present (e.g., the path is just "/"), default to "world".
+//     let name = req.match_info().get("name").unwrap_or("world");
+//     // Format a greeting message using the extracted or default name.
+//     // The resulting String will be sent as the HTTP response body.
+//     format!("Hello {}", &name)
+// }
 
+async fn health_check() -> impl Responder {
+    HttpResponse::Ok()
+}
 
 // The main entry point for the Actix Web application.
 // The #[actix_web::main] macro sets up the async runtime required by Actix.
@@ -32,10 +29,11 @@ async fn main() -> std::io::Result<()> {
         App::new()
             // Register a route for GET requests to the root path "/".
             // This will call the `greet` handler function.
-            .route("/", web::get().to(greet))
+            // .route("/", web::get().to(greet))
             // Register a route for GET requests to "/{name}".
             // The `{name}` part is a path parameter, which will be passed to the `greet` handler.
-            .route("/{name}", web::get().to(greet))
+            // .route("/{name}", web::get().to(greet))
+            .route("/health", web::get().to(health_check))
     })
     // Bind the server to the local address 127.0.0.1:8080.
     .bind(("127.0.0.1", 8080))?
