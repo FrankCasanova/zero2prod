@@ -1,18 +1,19 @@
+// src/main.rs
 
 fn main() {
-    println!("thi is the started project");
+    println!("Hello, world!");
+}
+
+pub fn add(a: i32, b: i32) -> i32 {
+    a + b
 }
 
 #[cfg(test)]
 mod tests {
-    use std::process::Command;
+    use super::*;
 
     #[test]
-    fn test_main_output() {
-        let output = Command::new(std::env::current_exe().unwrap())
-            .output()
-            .expect("Failed to execute process");
-        let stdout = String::from_utf8_lossy(&output.stdout);
-        assert!(stdout.contains("thi is the started project"));
+    fn test_add() {
+        assert_eq!(add(2, 3), 5);
     }
 }
