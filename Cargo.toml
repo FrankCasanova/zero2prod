@@ -3,8 +3,11 @@ name = "zero2prod"
 version = "0.1.0"
 edition = "2024"
 
-[target.x86_64-pc-windows-msvc]
-rustflags=["-C", "link-arg=-fuse-ld=lld"]
+[lib]
+# We could use any path here, but we are following the community convention# 
+# We could specify a library name using the `name` field. If unspecified,# cargo 
+# will default to `package.name`, which is what we want.
+path="src/lib.rs"
 
 [dependencies]
 actix-web = "4"
