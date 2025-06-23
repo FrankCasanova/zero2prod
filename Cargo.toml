@@ -7,7 +7,7 @@ edition = "2024"
 # We could use any path here, but we are following the community convention# 
 # We could specify a library name using the `name` field. If unspecified,# cargo 
 # will default to `package.name`, which is what we want.
-path="src/lib.rs"
+path = "src/lib.rs"
 
 # Notice the double square brackets: it's an array in TOML's syntax.
 # We can only have on library in a project, but we can have multiple binaries!
@@ -18,5 +18,8 @@ path = "src/main.rs"
 name = "zero2prod"
 
 [dependencies]
-actix-web = "4"
-tokio = "*"
+actix-web = "4.11.0"
+tokio = { version = "1", features = ["rt-multi-thread", "macros"] }
+
+[dev-dependencies]
+reqwest = "0.12.20"
