@@ -19,3 +19,6 @@ jobs:
 
     - name: Run tests
       run: cargo test
+
+    - name: Run linter
+      run: cargo clippy -- -D warnings
