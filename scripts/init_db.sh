@@ -1,3 +1,5 @@
+# Run Docker first.
+
 set -x
 set -eo pipefail
 
