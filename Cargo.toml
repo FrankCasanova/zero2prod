@@ -21,6 +21,7 @@ name = "zero2prod"
 actix-web = "4.11.0"
 tokio = { version = "1.45.1", features = ["rt-multi-thread", "macros"] }
 serde = { version = "1.0.219", features = ["derive"] }
+config = "0.15.11"
 
 [dev-dependencies]
 reqwest = "0.12.20"
@@ -35,5 +36,5 @@ features = [
     "postgres",
     "uuid",
     "chrono",
-    "migrate"
+    "migrate",
 ]
