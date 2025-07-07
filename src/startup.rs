@@ -3,8 +3,15 @@ use actix_web::dev::Server;
 use actix_web::{App, HttpServer, web};
 use sqlx::PgPool;
 use std::net::TcpListener;
+use actix_web::middleware::Logger;
+use env_logger::Env;
 
 pub fn run(listener: TcpListener, db_pool: PgPool) -> Result<Server, std::io::Error> {
+    // 'init' does call 'set_logger', so this is all we need to do.
+    // We are falling back to printing all logs at info-level or above
+    // if the RUST_LOG enviroment variable has not been set.
+    env_logger::Builder::from_env(Env::default().default_filter_or("info")).init();
+
     // Wrap the connection in a smart pointer cos the connection
     // is not clonable, we need an Atomic Reference Counter
     // in order to allow al threads use that connection carefully
@@ -14,6 +21,7 @@ pub fn run(listener: TcpListener, db_pool: PgPool) -> Result<Server, std::io::Er
     // that returns an App struct.
     let server = HttpServer::new(move || {
         App::new()
+            .wrap(Logger::default())
             .route("/health_check", web::get().to(health_check))
             .route("/subscriptions", web::post().to(subscribe))
             // Register the connection as part of the applications state
