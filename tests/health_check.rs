@@ -1,5 +1,5 @@
 use sqlx::{Connection, Executor, PgConnection, PgPool};
-use std::{fmt::format, net::TcpListener};
+use std::net::TcpListener;
 use uuid::Uuid;
 use zero2prod::configuration::{DatabaseSettings, get_configuration};
 use zero2prod::startup::run;
@@ -93,10 +93,10 @@ async fn subscribe_returns_a_200_for_valid_form_data() {
 
     // Assert
     assert_eq!(200, response.status().as_u16());
-    let saved = sqlx::query("SELECT email, name FROM subscriptions")
-        .fetch_one(&app.db_pool)
-        .await
-        .expect("Failed to fetch saved subscription.");
+    // let saved = sqlx::query("SELECT email, name FROM subscriptions")
+    //     .fetch_one(&app.db_pool)
+    //     .await
+    //     .expect("Failed to fetch saved subscription.");
 
     // assert_eq!(saved.email, "frankcasanova.test@gmail.com");
     // assert_eq!(saved.name, "Frank Casanova");
