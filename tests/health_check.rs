@@ -1,12 +1,38 @@
-use std::net::TcpListener;
-use sqlx::PgPool;
+use std::{fmt::format, net::TcpListener};
+use sqlx::{Connection, Executor, PgConnection, PgPool};
 use uuid::Uuid;
-use zero2prod::{configuration::get_configuration, startup::run};
+use zero2prod::startup::run;
+use zero2prod::configuration::{get_configuration, DatabaseSettings};
 
 
 pub struct TestApp {
     pub address: String,
     pub db_pool: PgPool
+}
+
+pub async fn configure_database(config: &DatabaseSettings) -> PgPool {
+    // Create database
+    let mut connection = PgConnection::connect(
+        &config.connection_string_without_db()
+    )
+        .await
+        .expect("Failed to connect to posgres in configure database test function");
+    connection
+        .execute(format!(r#"CREATE DATABASE "{}";"#, config.database_name).as_str())
+        .await
+        .expect("failed to create database, on configure database function");
+
+
+    // Migrate database
+    let connection_pool = PgPool::connect(&config.connection_string())
+        .await
+        .expect("failed to connect to posgres while migratin database on configure database function");
+    sqlx::migrate!("./migrations")
+        .run(&connection_pool)
+        .await
+        .expect("failed to migrate database on configure database function");
+    
+    connection_pool
 }
 
 async fn spawn_app() -> TestApp {
@@ -22,11 +48,7 @@ async fn spawn_app() -> TestApp {
     let mut configuration = get_configuration().expect("failed reading the configuration. it must be a file called configuration.yaml, check it out!");
     configuration.database.database_name = Uuid::new_v4().to_string();
 
-    let connection_pool = PgPool::connect(
-        &configuration.database.connection_string()
-    )
-    .await
-    .expect("failed to connect to posgres, is the database running?");
+    let connection_pool = configure_database(&configuration.database).await;
 
     let server = run(listener, connection_pool.clone()).expect("Failed to bind address");
     let _ = tokio::spawn(server);
