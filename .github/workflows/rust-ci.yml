@@ -39,6 +39,8 @@ jobs:
             echo "Waiting for Postgres..."
             sleep 5
           done
+      - name: Run migrations
+        run: ./scripts/init_db.sh
       - name: Run tests
         run: cargo test
 
