@@ -39,10 +39,16 @@ jobs:
             echo "Waiting for Postgres..."
             sleep 5
           done
-      - name: Make migration script executable
-        run: chmod +x ./scripts/init_db.sh
-      - name: Run migrations
-        run: ./scripts/init_db.sh
+      - name: Create subscriptions table
+        run: |
+          psql "postgres://postgres:password@localhost:5432/newsletter" -c "\
+            CREATE TABLE IF NOT EXISTS subscriptions (
+              id UUID PRIMARY KEY,
+              email TEXT NOT NULL,
+              name TEXT NOT NULL,
+              subscribed_at TIMESTAMPTZ NOT NULL
+            );
+          "
       - name: Run tests
         run: cargo test
 
