@@ -1,4 +1,4 @@
-use actix_web::{web, HttpResponse};
+use actix_web::{HttpResponse, web};
 use chrono::Utc;
 use sqlx::PgPool;
 use uuid::Uuid;
@@ -12,10 +12,7 @@ pub struct Formdata {
 }
 
 // Let's start simple: we always return a 200 OK
-pub async fn subscribe(
-    form: web::Form<Formdata>,
-    pool: web::Data<PgPool>
-) -> HttpResponse {
+pub async fn subscribe(form: web::Form<Formdata>, pool: web::Data<PgPool>) -> HttpResponse {
     let result = sqlx::query!(
         r#"
         INSERT INTO subscriptions (id, email, name, subscribed_at)
