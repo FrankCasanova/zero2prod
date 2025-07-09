@@ -13,6 +13,10 @@ pub struct Formdata {
 
 // Let's start simple: we always return a 200 OK
 pub async fn subscribe(form: web::Form<Formdata>, pool: web::Data<PgPool>) -> HttpResponse {
+    // logs are so important, it improve one foundamental aspect of backend field.
+    // OBSERVABILITY AND MONITORING AND LOGGING
+    // this is just our first log
+    log::info!("Saving new subscriber details in the database");
     let result = sqlx::query!(
         r#"
         INSERT INTO subscriptions (id, email, name, subscribed_at)
@@ -29,9 +33,14 @@ pub async fn subscribe(form: web::Form<Formdata>, pool: web::Data<PgPool>) -> Ht
     .await;
 
     match result {
-        Ok(_) => HttpResponse::Ok().finish(),
+        Ok(_) => {
+            // This is just our second log
+            log::info!("New subscriber details have been saved");
+            HttpResponse::Ok().finish()
+        }
         Err(e) => {
-            eprintln!("Failed to execute query: {e:?}");
+            // This is just our third log, is flaged as error.
+            log::error!("Failed to execute query: {e:?}");
             HttpResponse::InternalServerError().finish()
         }
     }

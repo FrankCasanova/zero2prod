@@ -6,7 +6,12 @@ use zero2prod::startup::run;
 #[tokio::main]
 async fn main() -> std::io::Result<()> {
     // Panic if we can't read configuration
-    let configuration = get_configuration().expect("Failed to read configuration.");
+    let configuration = get_configuration().expect(
+        "failed to read configuration. \
+        \nthe configuration file should be at the root of the project\
+        \nplease make sure that file is present and valid, \
+        and that it contains valid data",
+    );
     let connection_pool = PgPool::connect(&configuration.database.connection_string())
         .await
         .expect("Failed to connect to Postgres.");
