@@ -13,10 +13,18 @@ pub struct Formdata {
 
 // Let's start simple: we always return a 200 OK
 pub async fn subscribe(form: web::Form<Formdata>, pool: web::Data<PgPool>) -> HttpResponse {
+    let request_id = Uuid::new_v4();
     // logs are so important, it improve one foundamental aspect of backend field.
-    // OBSERVABILITY AND MONITORING AND LOGGING
-    // this is just our first log
-    log::info!("Saving new subscriber details in the database");
+    // OBSERVABILITY, MONITORING AND LOGGING
+    // To correlate a log with a request, we can use the request id
+    log::info!("\n
+        Request ID: {} \n
+        Saving '{}', '{}' details in the database\n
+        ", request_id, form.email, form.name);
+    log::info!("\n
+        Request ID: {} \n
+        Saving new subscriber details in the database\n
+        ", request_id);
     let result = sqlx::query!(
         r#"
         INSERT INTO subscriptions (id, email, name, subscribed_at)
@@ -35,12 +43,16 @@ pub async fn subscribe(form: web::Form<Formdata>, pool: web::Data<PgPool>) -> Ht
     match result {
         Ok(_) => {
             // This is just our second log
-            log::info!("New subscriber details have been saved");
+            log::info!("\n
+                Request ID: {} \n
+                New subscriber details have been saved\n", request_id);
             HttpResponse::Ok().finish()
         }
         Err(e) => {
             // This is just our third log, is flaged as error.
-            log::error!("Failed to execute query: {e:?}");
+            log::error!("\n
+                Request ID: {} \n
+                Failed to execute query: {e:?}\n", request_id);
             HttpResponse::InternalServerError().finish()
         }
     }

@@ -5,5 +5,9 @@ use actix_web::HttpResponse;
 // become more familiar with 'actix-web'
 // There is no perfomrance difference! just a stylistic choice :)
 pub async fn health_check() -> HttpResponse {
+    log::info!("\n
+        
+        Health check requested \n 
+    ");
     HttpResponse::Ok().finish()
 }
