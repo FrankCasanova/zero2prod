@@ -19,9 +19,9 @@ pub fn run(listener: TcpListener, db_pool: PgPool) -> Result<Server, std::io::Er
     // RUST_LOG=warn cargo run
     // we can get different levels of logs
     match env_logger::Builder::from_env(Env::default().default_filter_or("info")).try_init() {
-            Ok(_) => log::debug!("Logger initialized"),
-            Err(e) => log::error!("Failed to initialize logger: {}", e),
-        }
+        Ok(_) => log::debug!("Logger initialized"),
+        Err(e) => log::error!("Failed to initialize logger: {}", e),
+    }
 
     // Wrap the connection in a smart pointer cos the connection
     // is not clonable, we need an Atomic Reference Counter

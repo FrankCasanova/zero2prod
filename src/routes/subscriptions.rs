@@ -14,17 +14,23 @@ pub struct Formdata {
 // Let's start simple: we always return a 200 OK
 pub async fn subscribe(form: web::Form<Formdata>, pool: web::Data<PgPool>) -> HttpResponse {
     let request_id = Uuid::new_v4();
-    // logs are so important, it improve one foundamental aspect of backend field.
-    // OBSERVABILITY, MONITORING AND LOGGING
-    // To correlate a log with a request, we can use the request id
-    log::info!("\n
-        Request ID: {} \n
-        Saving '{}', '{}' details in the database\n
-        ", request_id, form.email, form.name);
-    log::info!("\n
-        Request ID: {} \n
-        Saving new subscriber details in the database\n
-        ", request_id);
+
+    // Spans, like logs, have an associated level
+    // 'info_span' creates a span at the info level
+    let request_span = tracing::info_span!(
+     "\n
+         Adding a new subscriber
+         \n",
+     %request_id, 
+     subscriber_email = %form.email,
+     subscriber_name = %form.name
+    );
+
+    // Using 'enter' in async function is a recipe for disaster
+    // bear with me for now, but dont do this at home.
+    // See the following section on 'Instrumenting Futures'
+    let _request_span_guard = request_span.enter();
+
     let result = sqlx::query!(
         r#"
         INSERT INTO subscriptions (id, email, name, subscribed_at)
@@ -41,18 +47,14 @@ pub async fn subscribe(form: web::Form<Formdata>, pool: web::Data<PgPool>) -> Ht
     .await;
 
     match result {
-        Ok(_) => {
-            // This is just our second log
-            log::info!("\n
-                Request ID: {} \n
-                New subscriber details have been saved\n", request_id);
-            HttpResponse::Ok().finish()
-        }
+        Ok(_) => HttpResponse::Ok().finish(),
         Err(e) => {
-            // This is just our third log, is flaged as error.
-            log::error!("\n
+            tracing::error!(
+                "\n
                 Request ID: {} \n
-                Failed to execute query: {e:?}\n", request_id);
+                Failed to execute query: {e:?}\n",
+                request_id
+            );
             HttpResponse::InternalServerError().finish()
         }
     }
